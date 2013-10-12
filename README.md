@@ -1,59 +1,61 @@
 
 # superagent-oauth
 
-A handy [superagent](https://github.com/visionmedia/superagent) plugin to sign requests
-with an OAuth token and secret.
-
-Builds on top of [node-oauth](https://github.com/ciaranj/node-oauth), but it enables you
-to leverage the API flexibility of superagent instead of the 
-`.get`, `.getProtectedResource` and other methods `node-oauth` offers.
+A handy [superagent](https://github.com/visionmedia/superagent) plugin to use ECP to auth
+requests for you
 
 ## Example
 
 ```js
-var oauth = new OAuth(…)
-  , request = require('superagent');
+var url = "https://printing.johnscompany.com/balance",
+	username = "john",
+	password = "somepassword",
+	ecp = "https://gateway.johnscompany.com/idp/profile/SAML2/SOAP/ECP";
 
-require('superagent-oauth')(request);
+// Libraries
+var request = require("superagent");
+require("./superagent-ecp")(request); // Add ECP
 
-// once you get the access token and secret
-request.post('http://api.resource.org/users')
-  .sign(oauth, token, secret)
-  .send({ my: 'data' })
-  .set('X-My', 'Header')
-  .end(function (res) {
-    console.log(res.status, res.body);
-  })
+request
+  .get(url)
+  .buffer(true)
+  .ecp(ecp, username, password, function(req){
+    req.end(function (res) {
+      console.log(res.status);
+      var p = res.text.indexOf("£");
+      console.log("Print Credit: " + res.text.substring( p, res.text.indexOf("<", p) ));
+    });
+  });
 ```
 
 ## API
 
-### Request#sign
-
-#### OAuth 1.0/1.0a
+### Request#ecp
 
 ```js
-Request#sign(oauthManager, token, secret)
+Request#ecp(idp_endpoint, username, password)
 ```
 
-- **oauthManager**: (`OAuth`) instance of the OAuth manager
-- **token**: (`String`) access token
-- **secret**: (`String`) access token secret
+- **idp_endpoint**: (`String`) Endpoint for IDP Authentication
+- **username**: (`String`) Username to access the resource with
+- **password**: (`String`) Passwod to access with. Shocking as it is, this whole complex
+ECP thing literally uses plain-text :O
 
-#### OAuth2
+#### idp_endpoint guessing
 
-```js
-Request#sign(oauthManager, token)
-```
+You can guess this fairly easy. If you try and use the service by-hand (and depending if ECP
+is enabled for the resource in question).
 
-- **oauthManager**: (`OAuth2`) instance of the OAuth2 manager
-- **token**: (`String`) access token
+For example if when you access the resource you are redirected to something like
+`https://idp.mycompany.com/idp/Authnengine`
+
+Then you simply take from `/idp/` and make it `/idp/idp/profile/SAML2/SOAP/ECP`
 
 ## Credits
 
 (The MIT License)
 
-Copyright (c) 2011 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
+Copyright (c) 2013 Joe Simpson
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

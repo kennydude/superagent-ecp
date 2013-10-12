@@ -1,7 +1,9 @@
 {
-    "name": "superagent-oauth"
-  , "version": "0.2.3"
-  , "main": "./superagent-oauth"
-  , "description": "Tiny superagent plugin to easily sign requests with node-oauth."
-  , "repository": { "type": "git", "url": "git://github.com/LearnBoost/superagent-oauth.git" }
+    "name": "superagent-ecp"
+  , "version": "0.1.0"
+  , "main": "./superagent-ecp"
+  , "description": "Tiny superagent plugin to easily sign requests with ECP."
+  , "repository": { "type": "git", "url": "git://github.com/kennydude/superagent-ecp.git" }
+  , "dependencies" : { "elementtree" : "*", "cookiejar" : "*" }
+  , "devDependencies" : { "superagent" : "*" }
 }
